@@ -92,7 +92,7 @@ app.get("/users", async (req, res) => {
 app.get("/user/:id/drafts", async (req, res) => {
   const { id } = req.params;
   //return all posts where the published field equals false
-  const drafts = await prisma.user.findMany({
+  const drafts = await prisma.user.findUnique({
     where: {
       id: Number(id),
     },
@@ -120,8 +120,6 @@ app.get(`/post/:id`, async (req, res) => {
 
 app.get("/feed", async (req, res) => {
   const { searchString, skip, take, orderBy } = req.query;
-  // 6. if the `searchString` parameter is not an empty, use the string to filter posts not matching the post titles or post content
-
   const posts = await prisma.post.findMany({
     where: {
       AND: [
@@ -133,12 +131,12 @@ app.get("/feed", async (req, res) => {
               OR: [
                 {
                   title: {
-                    contains: String(searchString),
+                    contains: searchString as string,
                   },
                 },
                 {
                   content: {
-                    contains: String(searchString),
+                    contains: searchString as string,
                   },
                 },
               ],
